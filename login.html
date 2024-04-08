@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LPU Express - Login</title>
+  <!-- Materialize CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+  <!-- Material Icons -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <!-- Custom CSS -->
+  <style>
+    body {
+      background-color: #f4f4f4;
+    }
+    .container {
+      margin-top: 50px;
+    }
+    .card-panel {
+      padding: 30px;
+      background-color: #fff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .btn-large {
+      width: 100%;
+      border-radius: 50px; /* Rounded button */
+    }
+    .logo {
+      display: block;
+      margin: auto;
+      width: 200px;
+      height: auto;
+    }
+    h4, p {
+      font-family: 'Times New Roman', Times, serif;
+      color: #333;
+      font-weight: bold;
+    }
+    p {
+      color: #777;
+    }
+    .btn {
+      border-radius: 50px; /* Rounded button */
+      background-color: #ff8a00;
+      color: #fff;
+    }
+    .card-panel{
+      box-shadow:0 0 50px #2bbbad;
+      
+    }
+    .head{
+        font-size: 26px;
+        font-style: italic;
+    }
+    body{
+        background-color: #fafaeb;
+    }
+  </style>
+</head>
+<body >
+  <div class="container">
+    <div class="row">
+      <div class="col s12 m6 offset-m3">
+        <div class="card-panel">
+          <img src="https://s3-alpha.figma.com/hub/file/2747156395/33996b80-ff35-4d84-b296-230aa5ac11a5-cover.png" alt="LPU Express Logo" class="logo">
+          <h4 class="center-align head" style="color: #ff8a00;">LPU Express
+          </h4>
+          <p class="center-align head" style="color: #ff8a00;">Login</p>
+          <form>
+            <div class="input-field">
+              <input id="login_email" type="email" class="validate" required>
+              <label for="login_email">Name</label>
+            </div>
+            <div class="input-field">
+              <input id="login_password" type="password" class="validate" required>
+              <label for="login_password">Password</label>
+            </div>
+            <button class="btn waves-effect waves-light btn-large" type="submit" name="action">Login
+              <i class="material-icons right">send</i>
+            </button>
+          </form>
+          <p class="center-align">Don't have an account? <a href="\signup">Sign up</a></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Materialize JavaScript -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</body>
+</html>
