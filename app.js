@@ -9,6 +9,7 @@ const server = app.listen(process.env.PORT || 3000, hostname, () => {
     console.log("listening");
 });
 const mongoose = require('mongoose');
+const { log } = require('console');
 
 const connectDB = async () => {
     try {
@@ -43,6 +44,8 @@ const UserSchema = new mongoose.Schema({
 
 const io = soc(server);
 app.use(exp.json());
+app.use(exp.static(path.join(__dirname, 'public')));
+app.use('/img', exp.static(path.join(__dirname, 'img')));
 app.get('/signup', (req, res) => {
     res.sendFile(path.join(__dirname, 'signup.html'));
 });
@@ -58,7 +61,9 @@ app.get('/', (req, res) => {
         cb(null, new Date().toDateString() + ".png")
     },
 });
-
+app.get('/choose',(req,res)=>{
+    res.sendFile(path.join(__dirname, 'index.html'))
+})
 
 
 io.on('connection', (socket) => {
@@ -85,17 +90,36 @@ io.on('connection', (socket) => {
         const user = new User({ name, email, password, registrationNumber, idCardImage, phoneNumber });
 
         try {
-            // Save user to database
+           
             await user.save();
             console.log("User added to database");
+            socket.emit("signsuccess")
         } catch (error) {
             console.error("Error saving user:", error);
         }}
     });
 
+    socket.on('login', async (formData) => {
+        console.log('Received form data:', formData);
+        const {registrationNumber,password } = formData;
+        const User = mongoose.model('user', UserSchema);
+        const existingUser = await User.findOne({ registrationNumber });
+        if(existingUser){
+            if (password === existingUser.password){
+                socket.emit("success")
+            }
+            else{
+                socket.emit("fail")
+            }
+        }
+        else{
+            socket.emit("fail")
+        }
+    });
+    
     socket.on('disconnect', () => {
         console.log('Client disconnected');
     });
 });
 
-connectDB();
+

@@ -54,6 +54,7 @@
     body{
         background-color: #fafaeb;
     }
+
   </style>
 </head>
 <body >
@@ -62,7 +63,7 @@
       <div class="col s12 m6 offset-m3">
         <div class="card-panel">
           <img src="https://s3-alpha.figma.com/hub/file/2747156395/33996b80-ff35-4d84-b296-230aa5ac11a5-cover.png" alt="LPU Express Logo" class="logo">
-          <h4 class="center-align head" style="color: #ff8a00;">LPU Express
+          <h4 class="center-align head" style="color: #ff8a00;"><img src="img/logo.png" height="150px" width="300px">
           </h4>
           <p class="center-align head" style="color: #ff8a00;">Sign Up</p>
           <form id="form">
@@ -131,6 +132,7 @@
         
             // Emit form values to the server
             socket.emit('signup', formData);
+           
         });
 
         // Listen for the 'exist' event from the server
@@ -139,6 +141,12 @@
             console.log("alet!")
             alert('A user with the same registration number already exists');
         });
+        socket.on('signsuccess', function() {
+          // Display a message box or alert to inform the user
+          console.log("alet!")
+          alert('Succesfully signed in');
+          window.location.href='/'
+      });
     });
 </script>
 

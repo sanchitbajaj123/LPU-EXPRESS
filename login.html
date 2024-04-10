@@ -55,21 +55,21 @@
     body{
         background-color: #fafaeb;
     }
+
   </style>
 </head>
 <body >
   <div class="container">
     <div class="row">
-      <div class="col s12 m6 offset-m3">
+      <div class="col s12 m8 offset-m2"> <!-- Reduced size of the container -->
         <div class="card-panel">
           <img src="https://s3-alpha.figma.com/hub/file/2747156395/33996b80-ff35-4d84-b296-230aa5ac11a5-cover.png" alt="LPU Express Logo" class="logo">
-          <h4 class="center-align head" style="color: #ff8a00;">LPU Express
-          </h4>
+          <h4 class="center-align head" style="color: #ff8a00;"><img src="img/logo.png" height="150px" width="300px"></h4>
           <p class="center-align head" style="color: #ff8a00;">Login</p>
-          <form>
+          <form id="form">
             <div class="input-field">
-              <input id="login_email" type="email" class="validate" required>
-              <label for="login_email">Name</label>
+              <input id="rn" type="text" class="validate" required>
+              <label for="rn">Registration number</label>
             </div>
             <div class="input-field">
               <input id="login_password" type="password" class="validate" required>
@@ -84,8 +84,43 @@
       </div>
     </div>
   </div>
+  
 
   <!-- Materialize JavaScript -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('form');
+      
+        // Connect to the Socket.IO server
+        const socket = io();
+      
+        form.addEventListener('submit', function(event) {
+            event.preventDefault();
+        
+            // Get form values
+            const formData = {
+                registrationNumber: document.getElementById('rn').value,
+                password: document.getElementById('login_password').value
+            };
+        
+            // Emit form values to the server
+            socket.emit('login', formData);
+        });
+
+        // Listen for the 'exist' event from the server
+        socket.on('success', function() {
+          alert('SUCCESFULLY LOGINED');
+          window.location.href = "/choose";
+
+      });
+      socket.on("fail",()=>{
+        alert("wrong credentials")
+      })
+    });
+  </script>
 </body>
 </html>
