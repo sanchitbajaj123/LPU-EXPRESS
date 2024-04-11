@@ -10,6 +10,7 @@ const server = app.listen(process.env.PORT || 3000, hostname, () => {
 });
 const mongoose = require('mongoose');
 const { log } = require('console');
+const { type } = require('os');
 
 const connectDB = async () => {
     try {
@@ -19,6 +20,7 @@ const connectDB = async () => {
         console.log(error.message);
     }
 }
+connectDB()
 
 const UserSchema = new mongoose.Schema({
     name: {
@@ -42,6 +44,29 @@ const UserSchema = new mongoose.Schema({
     }
 }, { collection: 'user' });
 
+const customerschema = new mongoose.Schema({
+    parcelname: {
+        type: String,
+    },
+    registrationNumber: {
+        type: String
+    },
+    idCardImage: {
+        type: String
+    },
+    phoneNumber: {
+        type: String
+    },
+    location:{
+        type:String
+    }
+    ,fare:{
+        type:Number
+    },company:{
+        type:String
+    }
+}, { collection: 'customers' });
+
 const io = soc(server);
 app.use(exp.json());
 app.use(exp.static(path.join(__dirname, 'public')));
@@ -64,8 +89,17 @@ app.get('/', (req, res) => {
 app.get('/choose',(req,res)=>{
     res.sendFile(path.join(__dirname, 'index.html'))
 })
+app.get('/customerform',(req,res)=>{
+    res.sendFile(path.join(__dirname,'customer form.html'))
+})
+app.get('/customer-list',(req,res)=>{
+res.sendFile(path.join(__dirname,'custmlist.html'))
+})
 
 
+let rn=0
+let mb=0
+let img="null"
 io.on('connection', (socket) => {
     console.log('New client connected');
 
@@ -98,14 +132,17 @@ io.on('connection', (socket) => {
             console.error("Error saving user:", error);
         }}
     });
-
+    
     socket.on('login', async (formData) => {
         console.log('Received form data:', formData);
         const {registrationNumber,password } = formData;
+        rn=registrationNumber
         const User = mongoose.model('user', UserSchema);
         const existingUser = await User.findOne({ registrationNumber });
         if(existingUser){
             if (password === existingUser.password){
+                mb=existingUser.phoneNumber
+                img=existingUser.idCardImage
                 socket.emit("success")
             }
             else{
@@ -117,7 +154,41 @@ io.on('connection', (socket) => {
         }
     });
     
+    socket.on('custmform', async (form) => {
+        console.log('Received form data:', form);
+        const { name, company, fare, location} = form;
+        const registrationNumber=rn
+        const phoneNumber=mb
+        const parcelname=name
+        const idCardImage=img
+        const User = mongoose.model('customers', customerschema);
+        
+        const user = new User({ parcelname,registrationNumber,idCardImage, phoneNumber,location,fare,company });
+
+        try {
+           
+            await user.save();
+            console.log("cust added to database");
+            
+        } catch (error) {
+            console.error("Error saving user:", error);
+        }
+    
+    })
+
+    socket.on('custmlistfetch', async () => {
+        try {
+            const Customer = mongoose.model('customers', customerschema);
+            const customers = await Customer.find({}).exec();
+            console.log(customers)
+            socket.emit('custmlistshow', customers);
+        } catch (error) {
+            console.error('Error fetching customers:', error);
+        }
+    });
+
     socket.on('disconnect', () => {
+        
         console.log('Client disconnected');
     });
 });

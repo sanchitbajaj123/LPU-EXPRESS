@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CUSTOMER LIST</title>
+<style>
+  /* Some basic styling */
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #fafaeb;
+  }
+  .container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #fafaeb;
+    border-radius: 5px;
+    
+  }
+  .block {
+    border: 1px solid #ccc;
+    margin-bottom: 20px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  .block:hover{
+    box-shadow: 0 0 10px #45a049;
+  }
+  .block img {
+    max-width: 100%;
+    max-height: 150px;
+    margin-bottom: 10px;
+  }
+  .block h3 {
+    margin: 0;
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+  .block p {
+    margin: 0;
+    margin-bottom: 10px;
+  }
+  .accept-button {
+    padding: 10px 20px;
+    border-radius: 50px; /* Rounded button */
+    background-color: #ff8a00;
+    color: #fff;
+   
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }
+  .accept-button:hover {
+    background-color: #45a049;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div id="list">
+    <!-- List will be dynamically populated here -->
+  </div>
+</div>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    // Sample data for demonstration
+    const data = []; // Empty array to store received data
+  
+    // Function to create a block element
+ // Function to create a block element
+function createBlock(item) {
+    const block = document.createElement('div');
+    block.classList.add('block');
+  
+    // Create and append image element
+    const img = document.createElement('img');
+    img.src = item.idCardImage;
+    img.alt = 'Image'; // Provide alt text for accessibility
+    block.appendChild(img);
+  
+    // Create and append registration number element
+    const registrationNumber = document.createElement('p');
+    registrationNumber.textContent = `Registration Number: ${item.registrationNumber}`;
+    block.appendChild(registrationNumber);
+  
+    // Create and append parcel name element
+    const parcel = document.createElement('p');
+    parcel.textContent = `Parcel: ${item.parcelname}`;
+    block.appendChild(parcel);
+  
+    // Create and append location element
+    const location = document.createElement('p');
+    location.textContent = `Location: ${item.location}`;
+    block.appendChild(location);
+  
+    // Create and append fare element
+    const fare = document.createElement('p');
+    fare.textContent = `Fare: ${item.fare}`;
+    block.appendChild(fare);
+  
+    // Create and append company name element
+    const companyName = document.createElement('p');
+    companyName.textContent = `Company Name: ${item.company}`;
+    block.appendChild(companyName);
+  
+    // Create and append phone number element
+    const phoneNumber = document.createElement('p');
+    phoneNumber.textContent = `Phone Number: ${item.phoneNumber}`;
+    block.appendChild(phoneNumber);
+  
+    // Create and append accept button element
+    const acceptButton = document.createElement('button');
+    acceptButton.textContent = 'Accept';
+    acceptButton.classList.add('accept-button');
+    block.appendChild(acceptButton);
+  
+    return block;
+  }
+  
+  
+    // Function to append blocks to the list
+    function appendBlocks(data) {
+      const list = document.getElementById('list');
+      data.forEach(item => {
+        const block = createBlock(item);
+        list.appendChild(block);
+      });
+    }
+  
+    // Connect to socket.io server
+    const socket = io();
+  
+    // Event listener to receive data from the server
+    socket.on('custmlistshow', (receivedData) => {
+      // Update data with received data
+      data.push(...receivedData);
+      // Append blocks using received data
+      appendBlocks(receivedData);
+    });
+socket.emit('custmlistfetch')
+</script>
+
+</body>
+</html>

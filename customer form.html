@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Parcel Information</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    body {
+      background-color: #fafaeb;  /* Same background color as previous form */
+    }
+    .container {
+      margin-top: 50px;
+    }
+    .card-panel {
+      padding: 30px;
+      background-color: #fff;  /* White background for card panel */
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .btn-large {
+      width: 100%;
+      border-radius: 50px; /* Rounded button */
+    }
+    h4 {
+      font-family: 'Times New Roman', Times, serif;
+      color: #333;
+      font-weight: bold;
+    }
+    p {
+      color: #777;
+    }
+    .btn {
+      border-radius: 50px; /* Rounded button */
+      background-color: #ff8a00;  /* Same button color as previous form */
+      color: #fff;
+    }
+    h4{
+        font-style: italic;
+        font-family: 'Times New Roman', Times, serif;
+        text-align: center;
+        color: #ff8a00;
+    
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col s12 m6 offset-m3">
+        
+        <div class="card-panel">
+            <img src="img/logo.png" height="170px" width="450px">
+          <h4>Parcel Information</h4>
+          <form id="parcel-form">
+            <div class="input-field">
+              <input id="parcel_name" type="text" class="validate" required>
+              <label for="parcel_name">Parcel Name</label>
+            </div>
+            <div class="input-field">
+              <input id="company_name" type="text" class="validate" required>
+              <label for="company_name">Delivery Company </label>
+            </div>
+            <div class="input-field">
+              <input id="fare" type="number" class="validate" required>
+              <label for="fare">Fare (e.g., 15.99)</label>
+            </div>
+            <div class="input-field">
+                <input id="location" type="text" class="validate" required>
+                <label for="location">Location</label>
+              </div>
+
+            <button class="btn waves-effect waves-light btn-large" type="submit">Submit
+              <i class="material-icons right">send</i>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const socket = io();
+      const form = document.getElementById('parcel-form');
+      form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        // Add your form submission logic here
+         const form={
+          name: document.getElementById('parcel_name').value,
+          company: document.getElementById('company_name').value,
+          fare: document.getElementById('fare').value,
+          location:document.getElementById('location').value
+        }
+        socket.emit("custmform",form)
+        });
+
+        
+        
+
+      });
+    
+  </script>
+</body>
+</html>
