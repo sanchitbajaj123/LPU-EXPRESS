@@ -11,6 +11,9 @@ const server = app.listen(process.env.PORT || 3000, hostname, () => {
 const mongoose = require('mongoose');
 const { log } = require('console');
 const { type } = require('os');
+let rn=0
+let mb=0
+let img="null"
 
 const connectDB = async () => {
     try {
@@ -64,6 +67,10 @@ const customerschema = new mongoose.Schema({
         type:Number
     },company:{
         type:String
+    },
+    deliveryregistrationNumber: {
+        type: String,
+        default: null 
     }
 }, { collection: 'customers' });
 
@@ -95,11 +102,13 @@ app.get('/customerform',(req,res)=>{
 app.get('/customer-list',(req,res)=>{
 res.sendFile(path.join(__dirname,'custmlist.html'))
 })
+app.get('/viewservices',(req,res)=>{
+    res.sendFile(path.join(__dirname,'viewservices.html'))    
+})
+app.get('/deliverypersonshow',(req,res)=>{
+    res.sendFile(path.join(__dirname,'deliverypersonshow.html'))  
+})
 
-
-let rn=0
-let mb=0
-let img="null"
 io.on('connection', (socket) => {
     console.log('New client connected');
 
@@ -186,6 +195,42 @@ io.on('connection', (socket) => {
             console.error('Error fetching customers:', error);
         }
     });
+    socket.on('accepted',async(acceptedData)=>{
+        const Customer = mongoose.model('customers', customerschema);
+        const customer = await Customer.findOne({ registrationNumber: acceptedData.registrationNumber });
+        customer.deliveryregistrationNumber = rn;
+        await customer.save();
+
+    })
+    socket.on('fetchviewservices',async()=>{
+        const Customer = mongoose.model('customers', customerschema);
+        const customer = await Customer.find({ deliveryregistrationNumber: rn });
+        console.log(customer)
+        socket.emit('showviewservices',customer)
+
+    })
+    socket.on('delivered', async (registrationNumber) => {
+        try {
+            const Customer = mongoose.model('customers', customerschema);
+            // Find the document with the specified registration number and delete it
+            const result = await Customer.deleteOne({ registrationNumber: registrationNumber });
+            if (result.deletedCount === 1) {
+                console.log(`Document with registration number ${registrationNumber} deleted successfully.`);
+            } else {
+                console.log(`Document with registration number ${registrationNumber} not found.`);
+            }
+        } catch (error) {
+            console.error('Error deleting document:', error);
+        }
+    });
+    socket.on('fetchdeliverydetails',async()=>{
+        
+            const Customer = mongoose.model('customers', customerschema);
+            const customer = await Customer.findOne({ registrationNumber: rn });
+            console.log(customer)
+            socket.emit('deliverydetails',customer)
+        })
+    
 
     socket.on('disconnect', () => {
         

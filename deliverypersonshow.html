@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Delivery Details Form</title>
+</head>
+<body>
+
+<div id="form"></div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io();
+
+    // Function to generate form based on delivery details
+    function generateForm(details) {
+        const formContainer = document.getElementById('form');
+        formContainer.innerHTML = ''; // Clear previous content
+        
+        // Check if details is not null and delivery registration number is not null
+        if (details && details.deliveryregistrationNumber !== null) {
+            Object.keys(details).forEach(key => {
+                const div = document.createElement('div');
+                div.classList.add('form-group');
+
+                const label = document.createElement('label');
+                label.textContent = key.charAt(0).toUpperCase() + key.slice(1); // Capitalize the first letter of the key
+                div.appendChild(label);
+
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = details[key];
+                input.setAttribute('readonly', true);
+                div.appendChild(input);
+
+                formContainer.appendChild(div);
+            });
+        } else {
+            // Display waiting message if details is null or delivery registration number is null
+            const waitingMessage = document.createElement('p');
+            waitingMessage.textContent = 'Waiting for delivery person to accept.';
+            formContainer.appendChild(waitingMessage);
+        }
+    }
+
+    // Fetch delivery details from the server
+    socket.emit('fetchdeliverydetails');
+
+    // Listen for delivery details from the server
+    socket.on('deliverydetails', (details) => {
+        console.log(details)
+        generateForm(details);
+    });
+</script>
+
+</body>
+</html>

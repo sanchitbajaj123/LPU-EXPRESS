@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CUSTOMER LIST</title>
+<title>View services</title>
 <style>
   /* Some basic styling */
   body {
@@ -60,30 +60,6 @@
   .accept-button:hover {
     background-color: #45a049;
   }
-  footer {
-    position: fixed;
-    align-items: center;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background-color: #fafaeb;
-    padding: 20px 0;
-    text-align: center;
-}
-#viewServicesButton {
-  align-items: center;
-    padding: 10px 20px;
-    font-size: 16px;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-#viewServicesButton:hover {
-    background-color: #0056b3;
-}
 </style>
 </head>
 <body>
@@ -92,9 +68,7 @@
   <div id="list">
     <!-- List will be dynamically populated here -->
   </div>
-  <footer>
-    <button id="viewServicesButton" onclick="viewservices()">View Services</button>
-  </footer>
+
 </div>
 <script src="/socket.io/socket.io.js"></script>
 <script>
@@ -145,7 +119,7 @@ function createBlock(item) {
   
     // Create and append accept button element
     const acceptButton = document.createElement('button');
-    acceptButton.textContent = 'Accept';
+    acceptButton.textContent = 'Delivered';
     acceptButton.classList.add('accept-button');
     block.appendChild(acceptButton);
     acceptButton.onclick = function() {
@@ -156,7 +130,7 @@ function createBlock(item) {
 
       };
       const socket = io();
-      socket.emit('accepted', acceptedData);
+      socket.emit('delivered',item.registrationNumber);
   };
     return block;
   }
@@ -167,9 +141,9 @@ function createBlock(item) {
       const list = document.getElementById('list');
       list.innerHTML = '';
       data.forEach(item => {
-        if(item.deliveryregistrationNumber==null){
+        
         const block = createBlock(item);
-        list.appendChild(block);}
+        list.appendChild(block);
 
       });
 }
@@ -177,24 +151,21 @@ function createBlock(item) {
   
 function fetch(){
     const socket = io();
-    socket.emit('custmlistfetch')
-    socket.on('custmlistshow', (receivedData) => {
-      
+    
+    socket.emit('fetchviewservices')
+    socket.on('showviewservices', (receivedData) => {
+      console.log(receivedData)
       data.push(...receivedData);
       
       appendBlocks(receivedData);
     });
-setTimeout(() => {
+    setTimeout(() => {
         
-  fetch();
-}, 1000);
-
+      fetch();
+    }, 1000);
 }
 fetch()
-function viewservices(){
-  window.location.href='/viewservices'
-  
-}
+
 
 </script>
 

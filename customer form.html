@@ -94,7 +94,11 @@
           fare: document.getElementById('fare').value,
           location:document.getElementById('location').value
         }
+        alert("parcel details added to database")
         socket.emit("custmform",form)
+        window.location.href='/deliverypersonshow'
+        
+
         });
 
         
