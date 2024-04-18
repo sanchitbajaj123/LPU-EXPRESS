@@ -72,11 +72,19 @@
 </div>
 <script src="/socket.io/socket.io.js"></script>
 <script>
-    // Sample data for demonstration
-    const data = []; // Empty array to store received data
+window.addEventListener('beforeunload', () => {
+  console.log('User clicked back button');
+  window.location.href='/login'
+  his
+});
   
-    // Function to create a block element
- // Function to create a block element
+  let rn=0
+    const data = []; // Empty array to store received data
+    const socket = io();
+  socket.emit('passrn')
+  socket.on('fetchrn', (receivedData) => {
+    rn=receivedData
+  });
 function createBlock(item) {
     const block = document.createElement('div');
     block.classList.add('block');
@@ -130,7 +138,7 @@ function createBlock(item) {
 
       };
       const socket = io();
-      socket.emit('delivered',item.registrationNumber);
+      socket.emit('delivered',item.registrationNumber,rn);
   };
     return block;
   }
@@ -150,9 +158,7 @@ function createBlock(item) {
     
   
 function fetch(){
-    const socket = io();
-    
-    socket.emit('fetchviewservices')
+    socket.emit('fetchviewservices',rn)
     socket.on('showviewservices', (receivedData) => {
       console.log(receivedData)
       data.push(...receivedData);
@@ -165,6 +171,7 @@ function fetch(){
     }, 1000);
 }
 fetch()
+
 
 
 </script>

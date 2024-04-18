@@ -100,9 +100,8 @@
 <script>
     // Sample data for demonstration
     const data = []; // Empty array to store received data
-  
-    // Function to create a block element
- // Function to create a block element
+    let rn=0
+    const socket = io();
 function createBlock(item) {
     const block = document.createElement('div');
     block.classList.add('block');
@@ -176,7 +175,7 @@ function createBlock(item) {
     
   
 function fetch(){
-    const socket = io();
+    
     socket.emit('custmlistfetch')
     socket.on('custmlistshow', (receivedData) => {
       

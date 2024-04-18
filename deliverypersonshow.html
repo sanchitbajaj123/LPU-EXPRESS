@@ -43,15 +43,30 @@
             formContainer.appendChild(waitingMessage);
         }
     }
+    let rn=0
+    socket.emit('passrn')
+    socket.on('fetchrn', (receivedData) => {
+      console.log(receivedData)
+      rn=receivedData
+    });
+    function fetch(){
+    socket.emit('fetchdeliverydetails',rn);
 
-    // Fetch delivery details from the server
-    socket.emit('fetchdeliverydetails');
-
-    // Listen for delivery details from the server
+   
     socket.on('deliverydetails', (details) => {
         console.log(details)
         generateForm(details);
     });
+    setTimeout(() => {
+        
+        fetch();
+      }, 1000);
+}
+fetch()
+function pop(){
+    window.location.href='/'
+    }
+    window.addEventListener('popstate', pop);
 </script>
 
 </body>

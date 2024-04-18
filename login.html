@@ -92,11 +92,21 @@
 
 
   <script>
+    let counter=1
+    const socket = io();
+    socket.emit('fetchcounter') 
+    console.log("counter::")
+    socket.on('gotcounter', (value) => {
+      console.log("------")
+        console.log(value)
+        counter = value; // Update counter value
+        console.log("Counter:", counter);
+    });
     document.addEventListener('DOMContentLoaded', function() {
         const form = document.getElementById('form');
       
         // Connect to the Socket.IO server
-        const socket = io();
+
       
         form.addEventListener('submit', function(event) {
             event.preventDefault();
@@ -106,16 +116,21 @@
                 registrationNumber: document.getElementById('rn').value,
                 password: document.getElementById('login_password').value
             };
-        
-            // Emit form values to the server
-            socket.emit('login', formData);
+            
+
+            console.log(counter)
+            if(counter==0){
+
+            socket.emit('login', formData);}
+            else{
+              alert("wait serrver is busy")
+            }
         });
 
         // Listen for the 'exist' event from the server
-        socket.on('success', function() {
+        socket.on('success', ()=> {
           alert('SUCCESFULLY LOGINED');
           window.location.href = "/choose";
-
       });
       socket.on("fail",()=>{
         alert("wrong credentials")

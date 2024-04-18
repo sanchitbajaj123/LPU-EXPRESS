@@ -84,6 +84,11 @@
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       const socket = io();
+      let rn=0
+      socket.emit('passrn')
+      socket.on('fetchrn', (receivedData) => {
+        rn=receivedData
+      });
       const form = document.getElementById('parcel-form');
       form.addEventListener('submit', function(event) {
         event.preventDefault();
@@ -95,7 +100,7 @@
           location:document.getElementById('location').value
         }
         alert("parcel details added to database")
-        socket.emit("custmform",form)
+        socket.emit("custmform",form,rn)
         window.location.href='/deliverypersonshow'
         
 

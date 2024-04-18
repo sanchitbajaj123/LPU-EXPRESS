@@ -116,11 +116,20 @@
   <script src="/socket.io/socket.io.js"></script>
   <script>
     const socket=io()
+    let rn=0;
+    socket.emit('passrn')
+    socket.on('fetchrn', (receivedData) => {
+      console.log(receivedData)
+      rn=receivedData
+    });
   function customer(){
+
     window.location.href='/customerform'
+    socket.emit('sendrn',rn)
   }
   function Service(){
     window.location.href='/customer-list'
+    socket.emit('sendrn',rn)
   }
   </script>
 </body>

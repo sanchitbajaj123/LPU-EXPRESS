@@ -19,6 +19,7 @@ const connectDB = async () => {
     try {
         await mongoose.connect("mongodb://localhost:27017/backendproject");
         console.log("Connected to Mongo DB");
+        counter=0
     } catch (error) {
         console.log(error.message);
     }
@@ -95,6 +96,7 @@ app.get('/', (req, res) => {
 });
 app.get('/choose',(req,res)=>{
     res.sendFile(path.join(__dirname, 'index.html'))
+
 })
 app.get('/customerform',(req,res)=>{
     res.sendFile(path.join(__dirname,'customer form.html'))
@@ -103,15 +105,25 @@ app.get('/customer-list',(req,res)=>{
 res.sendFile(path.join(__dirname,'custmlist.html'))
 })
 app.get('/viewservices',(req,res)=>{
+
     res.sendFile(path.join(__dirname,'viewservices.html'))    
+    
 })
 app.get('/deliverypersonshow',(req,res)=>{
-    res.sendFile(path.join(__dirname,'deliverypersonshow.html'))  
+
+    res.sendFile(path.join(__dirname,'deliverypersonshow.html')) 
+    
 })
 
 io.on('connection', (socket) => {
+    console.log(rn)
     console.log('New client connected');
 
+    socket.on('fetchcounter',()=>{
+        console.log("counter:")
+        socket.emit('gotcounter',counter)
+        console.log(counter)
+    })
     socket.on('signup', async (formData) => {
         console.log('Received form data:', formData);
         const { name, email, password, registrationNumber, idCardImage, phoneNumber } = formData;
@@ -152,7 +164,7 @@ io.on('connection', (socket) => {
             if (password === existingUser.password){
                 mb=existingUser.phoneNumber
                 img=existingUser.idCardImage
-                socket.emit("success")
+                socket.emit("success",counter)
             }
             else{
                 socket.emit("fail")
@@ -162,14 +174,24 @@ io.on('connection', (socket) => {
             socket.emit("fail")
         }
     });
+    socket.on('passrn',()=>{
+        socket.emit('fetchrn',rn)
+    })
+    socket.on('sendrn',(recdata)=>{
+        rn=recdata
+    })
     
-    socket.on('custmform', async (form) => {
+    socket.on('custmform', async (form,recdata) => {
         console.log('Received form data:', form);
         const { name, company, fare, location} = form;
-        const registrationNumber=rn
-        const phoneNumber=mb
+        const registrationNumber=recdata
+        const Use = mongoose.model('user', UserSchema);
+        const use = await Use.findOne({ registrationNumber: recdata});
+        console.log(use)
+        console.log(use.phoneNumber)
+        const phoneNumber=use.phoneNumber
         const parcelname=name
-        const idCardImage=img
+        const idCardImage=use.idCardImage
         const User = mongoose.model('customers', customerschema);
         
         const user = new User({ parcelname,registrationNumber,idCardImage, phoneNumber,location,fare,company });
@@ -202,11 +224,13 @@ io.on('connection', (socket) => {
         await customer.save();
 
     })
-    socket.on('fetchviewservices',async()=>{
+    socket.on('fetchviewservices',async(recdata)=>{
+        rn=recdata
         const Customer = mongoose.model('customers', customerschema);
+        console.log(rn)
         const customer = await Customer.find({ deliveryregistrationNumber: rn });
         console.log(customer)
-        socket.emit('showviewservices',customer)
+        socket.emit('showviewservices',customer,rn)
 
     })
     socket.on('delivered', async (registrationNumber) => {
@@ -223,17 +247,17 @@ io.on('connection', (socket) => {
             console.error('Error deleting document:', error);
         }
     });
-    socket.on('fetchdeliverydetails',async()=>{
+    socket.on('fetchdeliverydetails',async(recdata)=>{
         
             const Customer = mongoose.model('customers', customerschema);
-            const customer = await Customer.findOne({ registrationNumber: rn });
+            const customer = await Customer.findOne({ registrationNumber: recdata });
             console.log(customer)
             socket.emit('deliverydetails',customer)
         })
     
 
     socket.on('disconnect', () => {
-        
+        counter=0;
         console.log('Client disconnected');
     });
 });
