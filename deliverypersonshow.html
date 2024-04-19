@@ -4,6 +4,58 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Delivery Details Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #fafaeb;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #form {
+            width: 400px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 20px #d64701;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        input[type="text"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+            outline: none;
+            font-size: 14px;
+        }
+        input[type="text"][readonly] {
+            background-color: #f9f9f9;
+            cursor: not-allowed;
+        }
+        p.waiting-message {
+            text-align: center;
+            font-style: italic;
+            color: #666;
+        }
+        img.id-card {
+            width: 100%;
+            height: auto;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
 </head>
 <body>
 
@@ -12,6 +64,12 @@
 <script src="/socket.io/socket.io.js"></script>
 <script>
     const socket = io();
+    let rn = 0;
+    socket.emit('passrn');
+    socket.on('fetchrn', (receivedData) => {
+        console.log(receivedData);
+        rn = receivedData;
+    });
 
     // Function to generate form based on delivery details
     function generateForm(details) {
@@ -20,7 +78,14 @@
         
         // Check if details is not null and delivery registration number is not null
         if (details && details.deliveryregistrationNumber !== null) {
+            // Display ID card image
+            const idCardImg = document.createElement('img');
+            idCardImg.classList.add('id-card');
+            idCardImg.src = 'https://via.placeholder.com/400x200'; // Placeholder image URL
+            formContainer.appendChild(idCardImg);
+
             Object.keys(details).forEach(key => {
+                if (key.toLowerCase().includes('password') || key.toLowerCase().includes('_id') || key.toLowerCase().includes('__v') || key.toLowerCase().includes('idcardimage')) return; // Skip fields containing specified keywords
                 const div = document.createElement('div');
                 div.classList.add('form-group');
 
@@ -39,32 +104,27 @@
         } else {
             // Display waiting message if details is null or delivery registration number is null
             const waitingMessage = document.createElement('p');
+            waitingMessage.classList.add('waiting-message');
             waitingMessage.textContent = 'Waiting for delivery person to accept.';
             formContainer.appendChild(waitingMessage);
         }
     }
-    let rn=0
-    socket.emit('passrn')
-    socket.on('fetchrn', (receivedData) => {
-      console.log(receivedData)
-      rn=receivedData
-    });
-    function fetch(){
-    socket.emit('fetchdeliverydetails',rn);
 
-   
-    socket.on('deliverydetails', (details) => {
-        console.log(details)
-        generateForm(details);
-    });
-    setTimeout(() => {
-        
-        fetch();
-      }, 1000);
-}
-fetch()
-function pop(){
-    window.location.href='/'
+    function fetch() {
+        console.log("rn=", rn);
+        socket.emit('fetchdeliverydetails', rn);
+
+        socket.on('deliverydetails', (details) => {
+            console.log(details);
+            generateForm(details);
+        });
+
+        setTimeout(fetch, 1000);
+    }
+    fetch();
+
+    function pop() {
+        window.location.href = '/';
     }
     window.addEventListener('popstate', pop);
 </script>

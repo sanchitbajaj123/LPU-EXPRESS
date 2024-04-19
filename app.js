@@ -247,17 +247,28 @@ io.on('connection', (socket) => {
             console.error('Error deleting document:', error);
         }
     });
-    socket.on('fetchdeliverydetails',async(recdata)=>{
-        
-            const Customer = mongoose.model('customers', customerschema);
-            const customer = await Customer.findOne({ registrationNumber: recdata });
-            console.log(customer)
-            socket.emit('deliverydetails',customer)
-        })
+    socket.on('fetchdeliverydetails', (recdata) => {
+        console.log("recdata", recdata);
+        const Customer = mongoose.model('customers', customerschema);
+        Customer.findOne({ registrationNumber: recdata }).then((customer) => {
+            console.log(customer);
+            console.log(customer.deliveryregistrationNumber);
+            const Use = mongoose.model('user', UserSchema);
+            Use.findOne({ registrationNumber: customer.deliveryregistrationNumber }).then((use) => {
+                console.log(use);
+                socket.emit('deliverydetails', use);
+            }).catch((err) => {
+                console.error("Error finding user:", err);
+                socket.emit('error', err.message);
+            });
+        }).catch((err) => {
+            console.error("Error finding customer:", err);
+            socket.emit('error', err.message);
+        });
+    });
     
 
     socket.on('disconnect', () => {
-        counter=0;
         console.log('Client disconnected');
     });
 });
