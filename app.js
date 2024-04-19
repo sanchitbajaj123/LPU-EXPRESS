@@ -14,6 +14,14 @@ const { type } = require('os');
 let rn=0
 let mb=0
 let img="null"
+const admin = require('firebase-admin');
+
+const serviceAccount = require('./key.json');
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount),
+    storageBucket: 'gs://lpu-express.appspot.com' // Replace with your Firebase Storage bucket name
+});
 
 const connectDB = async () => {
     try {
@@ -128,42 +136,45 @@ app.get('/deliverypersonshow',(req,res)=>{
           });
       
           socket.on('signup', async (formData) => {
-              console.log('Received form data:', formData);
-              const { name, email, password, registrationNumber, idCardImage, phoneNumber } = formData;
-      
-              try {
-                  // Check if user already exists
-                  const existingUser = await User.findOne({ registrationNumber });
-                  if (existingUser) {
-                      socket.emit('exist');
-                      console.log("User already exists");
-                      return; // Exit the function early if user exists
-                  }
-      
-                  // Decode Base64 image data
-                  const base64Data = idCardImage.replace(/^data:image\/\w+;base64,/, '');
-                  const buffer = Buffer.from(base64Data, 'base64');
-      
-                  // Save id card image
-                  const imageName = Date.now() + '.png'; // You can use any image extension here
-                  require('fs').writeFile('uploads/' + imageName, buffer, 'base64', async function(err) {
-                      if (err) {
-                          console.error("Error saving id card image:", err);
-                          return;
-                      }
-      
-                      console.log("Id card image saved successfully");
-      
-                      // Create new user document
-                      const newUser = new User({ name, email, password, registrationNumber, idCardImage: imageName, phoneNumber });
-                      await newUser.save();
-                      console.log("User added to database");
-                      socket.emit("signsuccess");
-                  });
-              } catch (error) {
-                  console.error("Error saving user:", error);
-              }
-          });
+            console.log('Received form data:', formData);
+            const { name, email, password, registrationNumber, idCardImage, phoneNumber } = formData;
+        
+            try {
+                // Check if user already exists
+                const existingUser = await User.findOne({ registrationNumber });
+                if (existingUser) {
+                    socket.emit('exist');
+                    console.log("User already exists");
+                    return; // Exit the function early if user exists
+                }
+        
+                // Decode Base64 image data
+                const base64Data = idCardImage.replace(/^data:image\/\w+;base64,/, '');
+                const buffer = Buffer.from(base64Data, 'base64');
+        
+                // Upload id card image to Firebase Storage
+                const bucket = admin.storage().bucket();
+                const imageName = Date.now() + '.png'; // You can use any image extension here
+                const file = bucket.file(imageName);
+                await file.save(buffer, {
+                    metadata: {
+                        contentType: 'image/png' // Set the content type appropriately
+                    }
+                });
+        
+                console.log("Id card image uploaded to Firebase Storage");
+        
+                // Create new user document with the image URL from Firebase Storage
+const imageUrl = `https://firebasestorage.googleapis.com/v0/b/lpu-express.appspot.com/o/${imageName}?alt=media`;
+                const newUser = new User({ name, email, password, registrationNumber, idCardImage: imageUrl, phoneNumber });
+                await newUser.save();
+                console.log("User added to database");
+                socket.emit("signsuccess");
+            } catch (error) {
+                console.error("Error saving user:", error);
+            }
+        });
+        
       
     
     socket.on('login', async (formData) => {

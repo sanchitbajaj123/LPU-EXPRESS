@@ -108,7 +108,7 @@
     
       // Create and append image element
       const img = document.createElement('img');
-      img.src = `/uploads/${item.idCardImage}`;
+      img.src = item.idCardImage;
       img.alt = 'Image'; // Provide alt text for accessibility
       block.appendChild(img);
     
@@ -187,7 +187,7 @@ function fetch(){
 setTimeout(() => {
         
   fetch();
-}, 1000);
+}, 5000);
 
 }
 fetch()
