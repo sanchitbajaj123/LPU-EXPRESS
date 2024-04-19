@@ -17,7 +17,7 @@ let img="null"
 
 const connectDB = async () => {
     try {
-        await mongoose.connect("mongodb://localhost:27017/backendproject");
+        await mongoose.connect("mongodb+srv://sanchitbajaj2003:root@cluster0.jgph4uk.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0");
         console.log("Connected to Mongo DB");
         counter=0
     } catch (error) {
@@ -79,6 +79,8 @@ const io = soc(server);
 app.use(exp.json());
 app.use(exp.static(path.join(__dirname, 'public')));
 app.use('/img', exp.static(path.join(__dirname, 'img')));
+app.use('/uploads', exp.static(path.join(__dirname, 'uploads')));
+
 app.get('/signup', (req, res) => {
     res.sendFile(path.join(__dirname, 'signup.html'));
 });
@@ -114,45 +116,55 @@ app.get('/deliverypersonshow',(req,res)=>{
     res.sendFile(path.join(__dirname,'deliverypersonshow.html')) 
     
 })
-
-io.on('connection', (socket) => {
-    console.log(rn)
-    console.log('New client connected');
-
-    socket.on('fetchcounter',()=>{
-        console.log("counter:")
-        socket.emit('gotcounter',counter)
-        console.log(counter)
-    })
-    socket.on('signup', async (formData) => {
-        console.log('Received form data:', formData);
-        const { name, email, password, registrationNumber, idCardImage, phoneNumber } = formData;
+      
+ io.on('connection', (socket) => {
+          console.log('New client connected');
+      
         const User = mongoose.model('user', UserSchema);
-        const existingUser = await User.findOne({ registrationNumber });
-        if(existingUser){
-          socket.emit('exist')
-          console.log("already exists")
-
-        }else{
-        
-        // Save id card image
-        var upload = multer({
-          storage: storage,
-      }).single(idCardImage);
-        
-        // Create new user document
-        const User = mongoose.model('user', UserSchema);
-        const user = new User({ name, email, password, registrationNumber, idCardImage, phoneNumber });
-
-        try {
-           
-            await user.save();
-            console.log("User added to database");
-            socket.emit("signsuccess")
-        } catch (error) {
-            console.error("Error saving user:", error);
-        }}
-    });
+          socket.on('fetchcounter', () => {
+              console.log("counter:");
+              socket.emit('gotcounter', counter);
+              console.log(counter);
+          });
+      
+          socket.on('signup', async (formData) => {
+              console.log('Received form data:', formData);
+              const { name, email, password, registrationNumber, idCardImage, phoneNumber } = formData;
+      
+              try {
+                  // Check if user already exists
+                  const existingUser = await User.findOne({ registrationNumber });
+                  if (existingUser) {
+                      socket.emit('exist');
+                      console.log("User already exists");
+                      return; // Exit the function early if user exists
+                  }
+      
+                  // Decode Base64 image data
+                  const base64Data = idCardImage.replace(/^data:image\/\w+;base64,/, '');
+                  const buffer = Buffer.from(base64Data, 'base64');
+      
+                  // Save id card image
+                  const imageName = Date.now() + '.png'; // You can use any image extension here
+                  require('fs').writeFile('uploads/' + imageName, buffer, 'base64', async function(err) {
+                      if (err) {
+                          console.error("Error saving id card image:", err);
+                          return;
+                      }
+      
+                      console.log("Id card image saved successfully");
+      
+                      // Create new user document
+                      const newUser = new User({ name, email, password, registrationNumber, idCardImage: imageName, phoneNumber });
+                      await newUser.save();
+                      console.log("User added to database");
+                      socket.emit("signsuccess");
+                  });
+              } catch (error) {
+                  console.error("Error saving user:", error);
+              }
+          });
+      
     
     socket.on('login', async (formData) => {
         console.log('Received form data:', formData);
@@ -271,6 +283,6 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         console.log('Client disconnected');
     });
-});
 
+});
 

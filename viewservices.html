@@ -91,7 +91,7 @@ function createBlock(item) {
   
     // Create and append image element
     const img = document.createElement('img');
-    img.src = item.idCardImage;
+    img.src = `/uploads/${item.idCardImage}`;
     img.alt = 'Image'; // Provide alt text for accessibility
     block.appendChild(img);
   

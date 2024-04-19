@@ -102,63 +102,64 @@
     const data = []; // Empty array to store received data
     let rn=0
     const socket = io();
-function createBlock(item) {
-    const block = document.createElement('div');
-    block.classList.add('block');
-  
-    // Create and append image element
-    const img = document.createElement('img');
-    img.src = item.idCardImage;
-    img.alt = 'Image'; // Provide alt text for accessibility
-    block.appendChild(img);
-  
-    // Create and append registration number element
-    const registrationNumber = document.createElement('p');
-    registrationNumber.textContent = `Registration Number: ${item.registrationNumber}`;
-    block.appendChild(registrationNumber);
-  
-    // Create and append parcel name element
-    const parcel = document.createElement('p');
-    parcel.textContent = `Parcel: ${item.parcelname}`;
-    block.appendChild(parcel);
-  
-    // Create and append location element
-    const location = document.createElement('p');
-    location.textContent = `Location: ${item.location}`;
-    block.appendChild(location);
-  
-    // Create and append fare element
-    const fare = document.createElement('p');
-    fare.textContent = `Fare: ${item.fare}`;
-    block.appendChild(fare);
-  
-    // Create and append company name element
-    const companyName = document.createElement('p');
-    companyName.textContent = `Company Name: ${item.company}`;
-    block.appendChild(companyName);
-  
-    // Create and append phone number element
-    const phoneNumber = document.createElement('p');
-    phoneNumber.textContent = `Phone Number: ${item.phoneNumber}`;
-    block.appendChild(phoneNumber);
-  
-    // Create and append accept button element
-    const acceptButton = document.createElement('button');
-    acceptButton.textContent = 'Accept';
-    acceptButton.classList.add('accept-button');
-    block.appendChild(acceptButton);
-    acceptButton.onclick = function() {
-      // Emit the 'accepted' event with the data of the accepted block
-      const acceptedData = {
-          registrationNumber: item.registrationNumber,
-          parcelname: item.parcelname,
-
+    function createBlock(item) {
+      const block = document.createElement('div');
+      block.classList.add('block');
+    
+      // Create and append image element
+      const img = document.createElement('img');
+      img.src = `/uploads/${item.idCardImage}`;
+      img.alt = 'Image'; // Provide alt text for accessibility
+      block.appendChild(img);
+    
+      // Create and append registration number element
+      const registrationNumber = document.createElement('p');
+      registrationNumber.textContent = `Registration Number: ${item.registrationNumber}`;
+      block.appendChild(registrationNumber);
+    
+      // Create and append parcel name element
+      const parcel = document.createElement('p');
+      parcel.textContent = `Parcel: ${item.parcelname}`;
+      block.appendChild(parcel);
+    
+      // Create and append location element
+      const location = document.createElement('p');
+      location.textContent = `Location: ${item.location}`;
+      block.appendChild(location);
+    
+      // Create and append fare element
+      const fare = document.createElement('p');
+      fare.textContent = `Fare: ${item.fare}`;
+      block.appendChild(fare);
+    
+      // Create and append company name element
+      const companyName = document.createElement('p');
+      companyName.textContent = `Company Name: ${item.company}`;
+      block.appendChild(companyName);
+    
+      // Create and append phone number element
+      const phoneNumber = document.createElement('p');
+      phoneNumber.textContent = `Phone Number: ${item.phoneNumber}`;
+      block.appendChild(phoneNumber);
+    
+      // Create and append accept button element
+      const acceptButton = document.createElement('button');
+      acceptButton.textContent = 'Accept';
+      acceptButton.classList.add('accept-button');
+      block.appendChild(acceptButton);
+      acceptButton.onclick = function() {
+          // Emit the 'accepted' event with the data of the accepted block
+          const acceptedData = {
+              registrationNumber: item.registrationNumber,
+              parcelname: item.parcelname,
+          };
+          const socket = io();
+          socket.emit('accepted', acceptedData);
       };
-      const socket = io();
-      socket.emit('accepted', acceptedData);
-  };
-    return block;
+    
+      return block;
   }
+  
   
   
     // Function to append blocks to the list

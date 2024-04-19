@@ -86,7 +86,7 @@
             <div class="file-field input-field">
               <div class="btn">
                 <span>Upload ID Card Image</span>
-                <input type="file" id="signup_id_card_image"name="file" required>
+                <input type="file" id="signup_id_card_image" accept="image/*" required>
               </div>
               <div class="file-path-wrapper">
                 <input class="file-path validate" type="text">
@@ -126,27 +126,33 @@
                 email: document.getElementById('signup_email').value,
                 password: document.getElementById('signup_password').value,
                 registrationNumber: document.getElementById('signup_registration_number').value,
-                idCardImage: document.getElementById('signup_id_card_image').value,
                 phoneNumber: document.getElementById('signup_number').value
             };
-        
-            // Emit form values to the server
-            socket.emit('signup', formData);
-           
+
+            // Read the selected image file as a Base64 string
+            const fileInput = document.getElementById('signup_id_card_image');
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                formData.idCardImage = event.target.result; // Base64 string
+                // Emit form values to the server
+                socket.emit('signup', formData);
+            };
+            reader.readAsDataURL(file);
         });
 
         // Listen for the 'exist' event from the server
         socket.on('exist', function() {
             // Display a message box or alert to inform the user
-            console.log("alet!")
+            console.log("alert!");
             alert('A user with the same registration number already exists');
         });
         socket.on('signsuccess', function() {
-          // Display a message box or alert to inform the user
-          console.log("alet!")
-          alert('Succesfully signed in');
-          window.location.href='/'
-      });
+            // Display a message box or alert to inform the user
+            console.log("alert!");
+            alert('Successfully signed in');
+            window.location.href = '/';
+        });
     });
 </script>
 

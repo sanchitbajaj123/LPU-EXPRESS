@@ -81,7 +81,7 @@
             // Display ID card image
             const idCardImg = document.createElement('img');
             idCardImg.classList.add('id-card');
-            idCardImg.src = 'https://via.placeholder.com/400x200'; // Placeholder image URL
+            idCardImg.src = `/uploads/${details.idCardImage}`; // Placeholder image URL
             formContainer.appendChild(idCardImg);
 
             Object.keys(details).forEach(key => {
